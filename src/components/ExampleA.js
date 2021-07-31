@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import './visWidgetConfig.css';
+import { Table } from 'reactstrap';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { getComparisonById } from 'network/networkRequests';
-
+import FilterByText from './FilterByText';
 class ExampleA extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
-            requestedData: null
+            requestedData: null,
+            filterStr: ''
         };
     }
 
@@ -24,24 +26,39 @@ class ExampleA extends Component {
         });
     };
 
-    renderData = () => {
-        // create an authors array;
-        const authorStatements = this.state.requestedData.statementsData.content.filter(item => item.predicate.id === 'P27');
+    handleFilterChange = e => {
+        const filterStr = e.target.value.trim().toLowerCase()
+        this.setState({
+          filterStr: filterStr,
+        })
+    }
 
-        if (!this.state.requestedData) {
+    renderData = () => {
+        const { requestedData, filterStr } = this.state;
+        // create an authors array;
+        const authorStatements = requestedData.statementsData.content.filter(item => item.predicate.id === 'P27');
+
+        if (!requestedData) {
             return <div>Some error</div>;
         } else {
             return (
                 <div>
                     <div>
-                        Title: <b>{this.state.requestedData.resourceMetaData.label}</b>; Number of contributions:{' '}
-                        <b>{this.state.requestedData.comparisonData.contributions.length}</b>
+                        Title: <b>{requestedData.resourceMetaData.label}</b>; Number of contributions:{' '}
+                        <b>{requestedData.comparisonData.contributions.length}</b>
                     </div>
                     <div>
                         Authors:{' '}
                         {authorStatements.map(item => {
                             return item.object.label + '; ';
                         })}
+                    </div>
+                    <div className="my-3">
+                        <FilterByText 
+                            labelText="Filter by text for columns apart from Contribution and Same as"
+                            filterStr={ filterStr }
+                            handleFilterChange={ this.handleFilterChange }
+                        />
                     </div>
                     <div>Comparison Data:</div>
                     {this.renderComparisonTable()}
@@ -51,19 +68,18 @@ class ExampleA extends Component {
     };
 
     renderComparisonTable = () => {
-        const dataFrame = this.state.requestedData.comparisonData;
+        const { requestedData } = this.state;
+        const dataFrame = requestedData.comparisonData;
         return (
-            <table style={{ width: '100%', overflow: 'auto', display: 'block' }}>
+            <Table striped bordered responsive>
                 {/*  define headers*/}
-                <thead style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }}>
+                <thead>
                     <tr>
                         <th
                             style={{
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
-                                borderRight: '1px solid black',
-                                borderLeft: '1px solid black',
                                 padding: '3px'
                             }}
                         >
@@ -79,7 +95,6 @@ class ExampleA extends Component {
                                             whiteSpace: 'nowrap',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
-                                            borderRight: '1px solid black',
                                             padding: '3px'
                                         }}
                                     >
@@ -92,15 +107,13 @@ class ExampleA extends Component {
                 <tbody>
                     {Object.keys(dataFrame.data).map((data, id) => {
                         return (
-                            <tr key={'tr_id' + id} style={{ border: '1px solid black', borderTop: 'none' }}>
+                            <tr key={'tr_id' + id} >
                                 <td
                                     key={'td_id_' + id}
                                     style={{
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
-                                        borderRight: '1px solid black',
-                                        borderLeft: '1px solid black',
                                         padding: '3px',
                                         maxWidth: '200px'
                                     }}
@@ -117,13 +130,15 @@ class ExampleA extends Component {
                         );
                     })}
                 </tbody>
-            </table>
+            {/* </table> */}
+            </Table>
         );
     };
 
     createRows = rowId => {
+        const { requestedData, filterStr } = this.state;
         // property filtering
-        const dataFrame = this.state.requestedData.comparisonData;
+        const dataFrame = requestedData.comparisonData;
         const activeProperties = dataFrame.properties.filter(property => property.active === true);
         return activeProperties.map(property => {
             const propId = property.id;
@@ -135,13 +150,13 @@ class ExampleA extends Component {
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        borderRight: '1px solid black',
                         padding: '3px',
                         maxWidth: '200px'
                     }}
                 >
                     {
-                        (propId === "SAME_AS") ? this.renderLinks(dataValues, rowId) :
+                        (propId === 'SAME_AS') ? this.renderLinks(dataValues, rowId) :
+                        (filterStr.length > 0) ? this.getFilteredVals(dataValues, filterStr) :
                         dataValues.map(val => {
                             return val.label + ' ';
                         })
@@ -150,6 +165,13 @@ class ExampleA extends Component {
             );
         });
     };
+
+    getFilteredVals (dataValues, filterStr) {
+        return dataValues.map(val => {
+            const filered = val.label ? val.label.toLowerCase().indexOf(filterStr) != -1 : false;
+            return filered ? val.label + ' ' : ' ';
+        });
+    }
 
     renderLinks = (dataValues, rowId) => {
         return(
@@ -170,6 +192,7 @@ class ExampleA extends Component {
 
     /** Component Rendering Function **/
     render() {
+        const { loading } = this.state;
         return (
             <div>
                 <div className={'headerStyle'}>
@@ -179,7 +202,7 @@ class ExampleA extends Component {
                     </a>
                 </div>
                 <div className={'bodyStyle'}>
-                    {this.state.loading && (
+                    {loading && (
                         <h2 className="h5">
                             <span>
                                 <Icon icon={faSpinner} spin />
@@ -187,7 +210,7 @@ class ExampleA extends Component {
                             Loading ...
                         </h2>
                     )}
-                    {!this.state.loading && this.renderData()}
+                    {!loading && this.renderData()}
                 </div>
             </div>
         );
