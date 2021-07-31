@@ -126,10 +126,11 @@ class ExampleA extends Component {
         const dataFrame = this.state.requestedData.comparisonData;
         const activeProperties = dataFrame.properties.filter(property => property.active === true);
         return activeProperties.map(property => {
-            const dataValues = dataFrame.data[property.id][rowId];
+            const propId = property.id;
+            const dataValues = dataFrame.data[propId][rowId];
             return (
                 <td
-                    key={'td_id' + rowId + '_' + property.id}
+                    key={'td_id' + rowId + '_' + propId}
                     style={{
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
@@ -139,13 +140,33 @@ class ExampleA extends Component {
                         maxWidth: '200px'
                     }}
                 >
-                    {dataValues.map(val => {
-                        return val.label + ' ';
-                    })}
+                    {
+                        (propId === "SAME_AS") ? this.renderLinks(dataValues, rowId) :
+                        dataValues.map(val => {
+                            return val.label + ' ';
+                        })
+                    }
                 </td>
             );
         });
     };
+
+    renderLinks = (dataValues, rowId) => {
+        return(
+            <ul className={'linksList'}>
+                {
+                    dataValues.map( (linkItem, index) => {
+                        const { label } = linkItem;
+                        return (
+                            <li key={'link_id' + rowId + '_' + index}>
+                                <a href={label} target='_blank'>{label}</a>
+                            </li>
+                        )
+                    })
+                }
+            </ul>
+        );
+    }
 
     /** Component Rendering Function **/
     render() {
