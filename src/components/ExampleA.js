@@ -4,7 +4,8 @@ import { Table } from 'reactstrap';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { getComparisonById } from 'network/networkRequests';
-import FilterByText from './FilterByText';
+import FilterByText from './filter-bytext/FilterByText';
+import LinksList from './links-list/LinksList';
 class ExampleA extends Component {
     constructor(props) {
         super(props);
@@ -155,7 +156,7 @@ class ExampleA extends Component {
                     }}
                 >
                     {
-                        (propId === 'SAME_AS') ? this.renderLinks(dataValues, rowId) :
+                        (propId === 'SAME_AS') ? <LinksList dataValues dataValues={dataValues} rowId={rowId} /> :
                         (filterStr.length > 0) ? this.getFilteredVals(dataValues, filterStr) :
                         dataValues.map(val => {
                             return val.label + ' ';
@@ -171,23 +172,6 @@ class ExampleA extends Component {
             const filered = val.label ? val.label.toLowerCase().indexOf(filterStr) != -1 : false;
             return filered ? val.label + ' ' : ' ';
         });
-    }
-
-    renderLinks = (dataValues, rowId) => {
-        return(
-            <ul className={'linksList'}>
-                {
-                    dataValues.map( (linkItem, index) => {
-                        const { label } = linkItem;
-                        return (
-                            <li key={'link_id' + rowId + '_' + index}>
-                                <a href={label} target='_blank'>{label}</a>
-                            </li>
-                        )
-                    })
-                }
-            </ul>
-        );
     }
 
     /** Component Rendering Function **/

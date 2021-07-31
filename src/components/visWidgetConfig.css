@@ -20,39 +20,3 @@
     height: 90%;
     color: black;
 }
-
-/* Links List 
-  - for hyperlinks in table cell
-*/
-.linksList {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-/* Link & Visited States  */
-
-.linksList li a:link,
-.linksList li a:visited {
-    color: #009acd;
-    text-decoration: none;
-    display: inline-block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 200px;
-}
-
-/* Hover State */
-
-.linksList li a:hover {
-    color: #006400;
-}
-
-/* Focus State*/
-
-.linksList li a:focus {
-    color: #006400;
-    outline: none;
-    box-shadow: 0 0 4px #006400;
-}
