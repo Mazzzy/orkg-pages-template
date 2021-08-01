@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import DoiCard from './doi-card/DoiCard';
 import './visWidgetConfig.css';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -35,7 +36,7 @@ class ExampleB extends Component {
             return <div>Some error</div>;
         } else {
             return (
-                <div>
+                <div className="pb-5">
                     <div>
                         Title: <b>{this.state.requestedData.resourceMetaData.label}</b>;
                     </div>
@@ -46,7 +47,7 @@ class ExampleB extends Component {
                         })}
                     </div>
                     <div>Paper Data:</div>
-                    <div>Paper doi: {doiValue}</div>
+                    <DoiCard doi={doiValue}/>
                 </div>
             );
         }

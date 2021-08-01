@@ -1,0 +1,21 @@
+/* Doi 
+  - for Doi item
+*/
+.doiContainer {
+    background-color: #e9ecef;
+    padding: 6px 12px;
+    margin: 12px 0;
+}
+
+/* anchor & its Visited States  */
+
+.doiContainer a:link,
+.doiContainer a:visited {
+    color: #009acd;
+}
+
+/* Hover State */
+
+.doiContainer a:hover {
+    color: #006400;
+}
